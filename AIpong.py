@@ -1,13 +1,14 @@
 import pygame
 from pygame.locals import *
-
 def game_loop():
-    global ball_speed_x, ball_speed_y,ball,player_speed,opponent_speed
-    while True:
+    global ball_speed_x, ball_speed_y, ball, player_speed, opponent_speed
+
+    ongoing = True
+    while ongoing:
         # Handling input
         for event in pygame.event.get():
             if event.type == QUIT:
-                running = False
+                ongoing = False
             if event.type == KEYDOWN:
                 if event.key == K_DOWN:
                     player_speed += 7
@@ -24,15 +25,37 @@ def game_loop():
 
         player.y += player_speed
 
+        # Ball collision with paddles
+        if ball.colliderect(player) or ball.colliderect(opponent):
+            ball_speed_x *= -1
+        
+        # Ball collision with walls
         if ball.top <= 0 or ball.bottom >= HEIGHT:
             ball_speed_y *= -1
+            
+        # Check for ball going out of bounds on the left or right
         if ball.left <= 0 or ball.right >= WIDTH:
-            ball_speed_x *= -1
+            ball.center = (WIDTH / 2, HEIGHT / 2)  # Reset ball to center
+            ball_speed_x *= -1  # Change direction of ball
+            ball_speed_y = 3 * (1 if ball_speed_y > 0 else -1)  # Reset y-speed but maintain direction
+            player_speed = 0  # Reset player speed
+            opponent_speed = 7  # Reset opponent speed (if needed)
 
+        # Player paddle movement constraints
         if player.top <= 0:
             player.top = 0
         if player.bottom >= HEIGHT:
             player.bottom = HEIGHT
+
+        # Opponent paddle AI (basic for now, it just follows the ball)
+        if opponent.top < ball.y:
+            opponent.top += opponent_speed
+        if opponent.bottom > ball.y:
+            opponent.bottom -= opponent_speed
+        if opponent.top <= 0:
+            opponent.top = 0
+        if opponent.bottom >= HEIGHT:
+            opponent.bottom = HEIGHT
 
         # Drawing everything
         screen.fill(bg_color)
@@ -45,7 +68,7 @@ def game_loop():
         # FPS
         pygame.time.Clock().tick(60)
 
-# pygame.quit()
+
 
 
 if __name__ == '__main__':
@@ -70,3 +93,4 @@ if __name__ == '__main__':
 
 
     game_loop()
+    pygame.quit()
