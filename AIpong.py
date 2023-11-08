@@ -15,7 +15,7 @@ pygame.display.set_caption("Pong con Q-learning")
 WHITE = (255, 255, 255)
 
 # Parámetros de Q-learning
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.001
 DISCOUNT_FACTOR = 0.99
 EXPLORATION_RATE = 1.0
 EXPLORATION_DECAY = 0.995
@@ -136,7 +136,7 @@ def game_loop():
             ball.center = (WIDTH / 2, HEIGHT / 2)
             ball_speed_x *= -1
             # Recompensa y aprendizaje
-            reward = -10 if ball.left <= 0 else 10
+            reward = -10000 if ball.left <= 0 else 100
             next_state = get_state(ball, opponent)
             learn(state, action_index, reward, next_state)
             # Actualizar tasa de exploración
